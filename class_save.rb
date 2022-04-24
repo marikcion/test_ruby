@@ -1,10 +1,11 @@
-require 'securerandom'
+require 'csv'
 
 class Save
-    def save_file(html)
-        name = SecureRandom.hex(10)         
-        File.open("./save_file/#{name}.html", "w") do |file|
-            file.write(html)
+    def save(file, name)
+        CSV.open("./#{name}.csv", 'a', write_headers: true, headers: file.first.keys) do |csv|
+           file.each do |item|
+               csv << item.values
+           end 
         end
     end
 end
