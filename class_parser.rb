@@ -6,11 +6,24 @@ require './class_save.rb'
 class Parser
 
     def object(html)
-        @soup = Nokogiri::XML(html)
+        @soup = Nokogiri::HTML(html)
         @content_arr = []
+        return @content_arr
     end
 
-    def parser()
+    def breadcrumbs()
+        res = @soup.xpath("//div[@class='breadcrumbs__inner']").each do |element|
+            categoria_1 = element.at(".//ul[@class='breadcrumbs__list']//li[1]//a//span").text
+            categoria_2 = element.at(".//ul[@class='breadcrumbs__list']//li[2]//a//span").text
+            categoria_3 = element.at(".//ul[@class='breadcrumbs__list']//li[3]//a//span").text
+            categoria_4 = element.at(".//h1[@class='breadcrumbs__list__item']//span").text
+            category = categoria_1 + ' > ' + categoria_2 + ' > ' + categoria_3 + ' > ' + categoria_4
+            return category.to_s, categoria_4
+        end
+    end
+
+
+    def parser(breadcrum)
         url_domen = 'https://oz.by'
         @soup.xpath("//div[@class='item-type-card__item']").each do |element|
             if element.at(".//a[@class='item-type-card__link']//@href")
@@ -43,7 +56,8 @@ class Parser
             else
                 url_img = 'xpath не работает'
             end
-            @content_arr.push({    
+            @content_arr.push({
+                breadcrumbs: breadcrum,    
                 link: link,
                 title: title.text.strip,
                 promo: promo, 
@@ -52,12 +66,6 @@ class Parser
                 price: price.text.strip
             })
         end
-
-    end
-
-    def breadcrumbs()
-        res = @soup.xpath("//div[@class='breadcrumbs__inner']")
-        puts res
     end
 
     def chek()
@@ -67,5 +75,13 @@ class Parser
         else
             puts 'no pagination on the page'
         end
+    end
+
+    def go(html) 
+        arry = object(html)
+        breadcrum, name = breadcrumbs()
+        parser(breadcrum)
+        url = chek()
+        return arry, url, name
     end
 end
