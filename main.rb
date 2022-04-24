@@ -3,22 +3,20 @@ require './class_parser.rb'
 
 url = ARGV[0]
 
+zapros = Zapros.new
+pars = Parser.new
+saver = Save.new
 
-response1 = Zapros.new()
-pars = Parser.new()
 
-
-html = response1.get_requsts(url).body_str
-pars.object(html)
-pars.parser()
-pars.breadcrumbs()
-
-url_2 = pars.chek()
-if url_2 == 'https://oz.by/chocolate/?page=2'
-    html_2 = response1.get_requsts(url_2).body_str
-    pars.object(html_2)
-    pars.parser()
-    puts 'parser ok....'
-else
-    puts 'parser ok....'
+2.times do
+    html = zapros.get_requsts(url)
+    arr, url, name = pars.go(html.body_str)
+    if url.nil?
+        saver.save(arr, name) 
+        break
+    end
+    if arr.length > 150
+        saver.save(arr, name)
+        break
+    end
 end
