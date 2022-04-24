@@ -5,10 +5,10 @@ require './class_save.rb'
 
 class Parser
 
+    @@content_arr = []
+
     def object(html)
         @soup = Nokogiri::HTML(html)
-        @content_arr = []
-        return @content_arr
     end
 
     def breadcrumbs()
@@ -56,7 +56,7 @@ class Parser
             else
                 url_img = 'xpath не работает'
             end
-            @content_arr.push({
+            @@content_arr.push({
                 breadcrumbs: breadcrum,    
                 link: link,
                 title: title.text.strip,
@@ -66,6 +66,7 @@ class Parser
                 price: price.text.strip
             })
         end
+        return @@content_arr
     end
 
     def chek()
@@ -78,9 +79,9 @@ class Parser
     end
 
     def go(html) 
-        arry = object(html)
+        object(html)
         breadcrum, name = breadcrumbs()
-        parser(breadcrum)
+        arry = parser(breadcrum)
         url = chek()
         return arry, url, name
     end
